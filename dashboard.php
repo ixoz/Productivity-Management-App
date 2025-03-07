@@ -13,12 +13,13 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard_style.css">
     <link rel="stylesheet" href="css/taskList_style.css">
-    <title>Task Manager | Dashboard</title>
+    <title>Focusbrief | Dashboard</title>
 </head>
 <body>
     <header>
         <img src="./img/Gulogo.png" alt="" style="height: 80px;margin: 0px;padding: 0px;">
         <h1 style="margin-right: 1100px;">FocusBrief</h1>
+      
         <div class="user">
             <?php
                 session_start();
