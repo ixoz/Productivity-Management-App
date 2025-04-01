@@ -24,6 +24,7 @@
                 <input type="password" name="pwd" placeholder="Password" required>
                 <input type="email" name="email" placeholder="Email" required>
                 <button>Sign Up</button>
+                
             </form>
             <?php
                 check_signup_errors();

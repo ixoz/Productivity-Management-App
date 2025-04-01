@@ -18,7 +18,7 @@
 <body>
     <header>
         <img src="./img/Gulogo.png" alt="" style="height: 80px;margin: 0px;padding: 0px;">
-        <h1 style="margin-right: 1100px;">FocusBrief</h1>
+       
       
         <div class="user">
             <?php
@@ -26,6 +26,7 @@
                 if (isset($_SESSION['user_username'])) {
                     echo "<h4>" . $_SESSION['user_username'] . "</h4>";
             ?>
+            <a href="" class="btn" style="margin-right: 5px;" onclick="window.open('/PMA/pomodoro.php', '_blank'); return false;">Pomodoro</a>
                 <a class="btn" href="logout.php">Logout</a>
             <?php
                 } else {
