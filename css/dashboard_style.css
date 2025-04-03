@@ -1,19 +1,44 @@
+
+:root {
+    --background-color: #c9d6ff;
+    --container-bg: #ffffff;
+    --header-bg: aliceblue;
+    --timer-color: #333;
+
+    --text-color: #555;
+    --border-color: #ddd;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --header-height: 80px;
+}
 body {
-    height: 100vh;
+    font-family: 'Arial', sans-serif;
+    background-color: var(--background-color);
+    margin: 0;
+    color: var(--text-color);
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 55px; /* Height of footer + padding */
+    box-sizing: border-box;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 header {
-    background-color: aliceblue;
-    width: 100%;
-    height: 100px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: 30px 5%;
+    background-color: var(--header-bg);
+    padding: 0 20px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    z-index: 999999;
+    align-items: center;
+    height: var(--header-height);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    border-bottom: 1px solid var(--border-color);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+header img {
+    height: 60px;
+    margin: 0;
+    padding: 0;
 }
 
 .user {
@@ -25,26 +50,33 @@ header {
     margin: 25px;
     font-style: italic;
 }
-
-.user .btn {
+header .user button,
+header .user a.btn {
     text-decoration: none;
+    color: white;
     background-color: #512da8;
-    color: #fff;
-    font-size: 12px;
-    padding: 10px 15px;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-top: 10px;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 0.9em;
+    margin-left: 10px;
 }
 
-.user .btn:hover {
-    background-color: #522da8d8; 
-    transition: all 0.3s ease-in-out;
+header .user button a {
+    color: white;
+    text-decoration: none;
+    display: block;
 }
+
+header .user button:hover,
+header .user a.btn:hover {
+    background-color: #522da8d8;
+}
+
+
+
 
 .global-container {
     position: absolute;
@@ -52,7 +84,7 @@ header {
     bottom: calc(100px + 5%);
     left: 5%;
     right: 5%;
-    overflow: scroll;
+    overflow: auto;
 }
 
 .container {
@@ -151,8 +183,8 @@ footer {
     left: 0;
     background-color: aliceblue;
     width: 100%;
-    height: 50px;
-    padding: 30px 5%;
+    height: 35px;
+    padding: 10px 5%;
     display: flex;
     align-items: center;
     justify-content: center;

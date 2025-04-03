@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$userId = (int)$_SESSION['user_id'];
+$userId = (int) $_SESSION['user_id'];
 $username = isset($_SESSION['user_username']) ? htmlspecialchars($_SESSION['user_username']) : 'User';
 
 $dbHost = '127.0.0.1';
@@ -33,7 +33,7 @@ if ($stmt_fetch) {
             $currentPomodoroCount = $row['pomodoro_count'];
         }
     } else {
-         error_log("Failed to execute statement for fetching count: " . $stmt_fetch->error);
+        error_log("Failed to execute statement for fetching count: " . $stmt_fetch->error);
     }
     $stmt_fetch->close();
 } else {
@@ -51,17 +51,21 @@ if ($is_ajax_request && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['a
         $conn->begin_transaction();
         try {
             $updateStmt = $conn->prepare("UPDATE users SET pomodoro_count = pomodoro_count + 1 WHERE id = ?");
-            if(!$updateStmt) throw new Exception("Prepare failed (UPDATE): " . $conn->error);
+            if (!$updateStmt)
+                throw new Exception("Prepare failed (UPDATE): " . $conn->error);
 
             $updateStmt->bind_param("i", $userId);
-            if(!$updateStmt->execute()) throw new Exception("Execute failed (UPDATE): " . $updateStmt->error);
+            if (!$updateStmt->execute())
+                throw new Exception("Execute failed (UPDATE): " . $updateStmt->error);
             $updateStmt->close();
 
             $selectStmt = $conn->prepare("SELECT pomodoro_count FROM users WHERE id = ?");
-             if(!$selectStmt) throw new Exception("Prepare failed (SELECT): " . $conn->error);
+            if (!$selectStmt)
+                throw new Exception("Prepare failed (SELECT): " . $conn->error);
 
             $selectStmt->bind_param("i", $userId);
-             if(!$selectStmt->execute()) throw new Exception("Execute failed (SELECT): " . $selectStmt->error);
+            if (!$selectStmt->execute())
+                throw new Exception("Execute failed (SELECT): " . $selectStmt->error);
 
             $result = $selectStmt->get_result();
             $newCount = 0;
@@ -91,168 +95,224 @@ if ($is_ajax_request && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['a
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pomodoro Timer</title>
     <style>
         :root {
-            --background-color: #c9d6ff;
-            --container-bg: #ffffff;
-            --header-bg: #fff;
-            --timer-color: #333;
-            --button-bg: #5cb85c;
-            --button-hover-bg: #4cae4c;
-            --button-pause-bg: #f0ad4e;
-            --button-pause-hover-bg: #ec971f;
-            --button-reset-bg: #d9534f;
-            --button-reset-hover-bg: #d43f3a;
-            --text-color: #555;
-            --border-color: #ddd;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --header-height: 80px;
-        }
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: var(--background-color);
-            margin: 0;
-            color: var(--text-color);
-        }
-        header {
-            background-color: var(--header-bg);
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: var(--header-height);
-            box-shadow: 0 2px 4px var(--shadow-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-        header img {
-            height: 60px;
-            margin: 0;
-            padding: 0;
-        }
-        .habit-tracker-btn-container {
-            flex-grow: 1;
-            text-align: center;
-        }
-        header .user {
-            display: flex;
-            align-items: center;
-        }
-        header .user h4 {
-            margin: 0 15px 0 0;
-            color: var(--timer-color);
-            font-weight: normal;
-        }
-        header .user button,
-        header .user a.btn {
-            text-decoration: none;
-            color: white;
-            background-color:#512da8;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            font-size: 0.9em;
-            margin-left: 10px;
-        }
-         header .user button a {
-            color: white;
-            text-decoration: none;
-            display: block;
-         }
-        header .user button:hover,
-        header .user a.btn:hover {
-            background-color: var(--button-reset-hover-bg);
-        }
-        .main-content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: calc(100vh - var(--header-height));
-            padding: 20px;
-        }
-        .pomodoro-container {
-            background-color: var(--container-bg);
-            padding: 30px 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px var(--shadow-color);
-            text-align: center;
-            border: 1px solid var(--border-color);
-            min-width: 300px;
-            max-width: 400px;
-        }
-        .pomodoro-container h1 {
-            color: var(--timer-color);
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 1.8em;
-        }
-        #timer-display {
-            font-size: 4.5em;
-            font-weight: bold;
-            color: var(--timer-color);
-            margin: 20px 0;
-            padding: 10px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-        }
-        .controls button {
-            font-size: 1em;
-            padding: 12px 25px;
-            margin: 5px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            min-width: 90px;
-        }
-        #start-pause-btn {
-            background-color: var(--button-bg);
-        }
-        #start-pause-btn:hover {
-            background-color: var(--button-hover-bg);
-        }
-        #start-pause-btn.paused {
-             background-color: var(--button-pause-bg);
-        }
-         #start-pause-btn.paused:hover {
-             background-color: var(--button-pause-hover-bg);
-        }
-        #reset-btn {
-            background-color: var(--button-reset-bg);
-        }
-        #reset-btn:hover {
-            background-color: var(--button-reset-hover-bg);
-        }
-        #pomodoro-count-display {
-            margin-top: 25px;
-            font-size: 1.1em;
-            color: var(--text-color);
-        }
-         #pomodoro-count-display strong {
-             color: var(--timer-color);
-             font-weight: bold;
-             font-size: 1.3em;
-             margin-left: 5px;
-         }
-         .status-message {
-             margin-top: 15px;
-             font-style: italic;
-             color: #777;
-             min-height: 20px;
-         }
+    --background-color: #c9d6ff;
+    --container-bg: #ffffff;
+    --header-bg: aliceblue;
+    --timer-color: #333;
+    --button-bg: #5cb85c;
+    --button-hover-bg: #4cae4c;
+    --button-pause-bg: #f0ad4e;
+    --button-pause-hover-bg: #ec971f;
+    --button-reset-bg: #d9534f;
+    --button-reset-hover-bg: #d43f3a;
+    --text-color: #555;
+    --border-color: #ddd;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --header-height: 80px;
+}
+
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--background-color);
+    margin: 0;
+    color: var(--text-color);
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 55px; /* Height of footer + padding */
+    box-sizing: border-box;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+header {
+    background-color: var(--header-bg);
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: var(--header-height);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    border-bottom: 1px solid var(--border-color);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+header img {
+    height: 60px;
+    margin: 0;
+    padding: 0;
+}
+
+.habit-tracker-btn-container {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.user {
+    display: flex;
+    align-items: baseline;
+}
+
+.user h4 {
+    color: black;
+    margin: 25px;
+    font-style: italic;
+}
+
+header .user button,
+header .user a.btn {
+    text-decoration: none;
+    color: white;
+    background-color: #512da8;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+
+header .user button a {
+    color: white;
+    text-decoration: none;
+    display: block;
+}
+
+header .user button:hover,
+header .user a.btn:hover {
+    background-color: #522da8d8;
+}
+
+.main-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - var(--header-height) - 55px);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.pomodoro-container {
+    background-color: var(--container-bg);
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    text-align: center;
+    border: 1px solid var(--border-color);
+    min-width: 300px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.pomodoro-container h1 {
+    color: var(--timer-color);
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.8em;
+}
+
+#timer-display {
+    font-size: 4.5em;
+    font-weight: bold;
+    color: var(--timer-color);
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+}
+
+.controls button {
+    font-size: 1em;
+    padding: 12px 25px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    min-width: 90px;
+}
+
+#start-pause-btn {
+    background-color: var(--button-bg);
+}
+
+#start-pause-btn:hover {
+    background-color: var(--button-hover-bg);
+}
+
+#start-pause-btn.paused {
+    background-color: var(--button-pause-bg);
+}
+
+#start-pause-btn.paused:hover {
+    background-color: var(--button-pause-hover-bg);
+}
+
+#reset-btn {
+    background-color: var(--button-reset-bg);
+}
+
+#reset-btn:hover {
+    background-color: var(--button-reset-hover-bg);
+}
+
+#pomodoro-count-display {
+    margin-top: 25px;
+    font-size: 1.1em;
+    color: var(--text-color);
+}
+
+#pomodoro-count-display strong {
+    color: var(--timer-color);
+    font-weight: bold;
+    font-size: 1.3em;
+    margin-left: 5px;
+}
+
+.status-message {
+    margin-top: 15px;
+    font-style: italic;
+    color: #522da8d8;
+    min-height: 20px;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background-color: var(--header-bg);
+    width: 100%;
+    height: 35px;
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+footer strong {
+    color: #512da8;
+    font-style: italic;
+    font-weight: 800;
+}
+
     </style>
 </head>
+
 <body>
 
     <header>
-        <img src="./img/Gulogo.png" alt="Logo" >
-
+        <img src="./img/Gulogo.png" alt="Logo">
+        <h2 style="padding: 20px;">FocusBrief</h2>
         <div class="habit-tracker-btn-container">
         </div>
 
@@ -273,7 +333,8 @@ if ($is_ajax_request && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['a
             </div>
             <div class="status-message" id="status-message">Ready to focus?</div>
             <div id="pomodoro-count-display">
-                Completed Pomodoros: <strong id="pomodoro-count"><?php echo htmlspecialchars($currentPomodoroCount); ?></strong>
+                Completed Pomodoros: <strong
+                    id="pomodoro-count"><?php echo htmlspecialchars($currentPomodoroCount); ?></strong>
             </div>
         </div>
     </div>
@@ -301,9 +362,9 @@ if ($is_ajax_request && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['a
         function updateDisplay() {
             timerDisplay.textContent = formatTime(remainingTime);
             if (isRunning && !isPaused) {
-                 document.title = `${formatTime(remainingTime)} - Focusing...`;
+                document.title = `${formatTime(remainingTime)} - Focusing...`;
             } else {
-                 document.title = 'Pomodoro Timer';
+                document.title = 'Pomodoro Timer';
             }
         }
 
@@ -345,7 +406,7 @@ if ($is_ajax_request && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['a
                 updateStatusMessage('Timer paused.');
                 clearInterval(timerInterval);
                 timerInterval = null;
-                 updateDisplay();
+                updateDisplay();
             }
         }
 
@@ -358,7 +419,7 @@ if ($is_ajax_request && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['a
             startPauseBtn.textContent = 'Start';
             startPauseBtn.classList.remove('paused');
             updateDisplay();
-             if (updateStatus) {
+            if (updateStatus) {
                 updateStatusMessage('Ready to start a new session!');
             }
         }
@@ -374,33 +435,33 @@ if ($is_ajax_request && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['a
                 headers: headers,
                 body: 'action=increment_pomodoro'
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error(`HTTP error! status: ${response.status}, message: ${text}`);
-                    });
-                }
-                const contentType = response.headers.get("content-type");
-                if (contentType && contentType.indexOf("application/json") !== -1) {
-                     return response.json();
-                } else {
-                    return response.text().then(text => {
-                         throw new Error(`Unexpected response type: ${contentType}. Content: ${text}`);
-                    });
-                }
-            })
-            .then(data => {
-                if (data.success && typeof data.new_count !== 'undefined') {
-                    pomodoroCountSpan.textContent = data.new_count;
-                } else {
-                    console.error('Failed to increment count:', data.message || 'Unknown error from server');
-                    updateStatusMessage('Error saving count!');
-                }
-            })
-            .catch(error => {
-                console.error('Error sending increment request:', error);
-                 updateStatusMessage('Network or server error saving count!');
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP error! status: ${response.status}, message: ${text}`);
+                        });
+                    }
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        return response.json();
+                    } else {
+                        return response.text().then(text => {
+                            throw new Error(`Unexpected response type: ${contentType}. Content: ${text}`);
+                        });
+                    }
+                })
+                .then(data => {
+                    if (data.success && typeof data.new_count !== 'undefined') {
+                        pomodoroCountSpan.textContent = data.new_count;
+                    } else {
+                        console.error('Failed to increment count:', data.message || 'Unknown error from server');
+                        updateStatusMessage('Error saving count!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending increment request:', error);
+                    updateStatusMessage('Network or server error saving count!');
+                });
         }
 
         startPauseBtn.addEventListener('click', () => {
@@ -412,17 +473,21 @@ if ($is_ajax_request && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['a
         });
 
         resetBtn.addEventListener('click', () => {
-             if (isRunning && !isPaused) {
-                 if (!confirm("Are you sure you want to reset the current timer? This session won't be saved.")) {
+            if (isRunning && !isPaused) {
+                if (!confirm("Are you sure you want to reset the current timer? This session won't be saved.")) {
                     return;
-                 }
-             }
+                }
+            }
             resetTimer();
         });
 
         updateDisplay();
 
     </script>
+    <footer>
+        <h4>All Rights Reserved © Created By <strong>Nisarg</strong></h4>
+    </footer>
 
 </body>
+
 </html>
