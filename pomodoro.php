@@ -212,7 +212,7 @@ header .user a.btn:hover {
 }
 
 .pomodoro-container {
-    background-color: var(--container-bg);
+    background-color: var(--header-bg);
     padding: 30px 40px;
     border-radius: 10px;
     box-shadow: 0 4px 15px var(--shadow-color);
@@ -329,6 +329,7 @@ footer strong {
 
         <div class="user">
             <h4><?php echo $username; ?></h4>
+            <button><a href="./Habits.php">Habit Tracker</a></button>
             <button><a href="dashboard.php">Dashboard</a></button>
             <a class="btn" href="logout.php">Logout</a>
         </div>

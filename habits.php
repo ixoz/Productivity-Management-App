@@ -7,15 +7,15 @@ $db_user = 'root';
 $db_pass = '';
 $dsn = "mysql:host=$db_host;dbname=$db_name;charset=utf8mb4";
 $options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES   => false,
+    PDO::ATTR_EMULATE_PREPARES => false,
 ];
 
 try {
-     $pdo = new PDO($dsn, $db_user, $db_pass, $options);
+    $pdo = new PDO($dsn, $db_user, $db_pass, $options);
 } catch (\PDOException $e) {
-     throw new \PDOException($e->getMessage(), (int)$e->getCode());
+    throw new \PDOException($e->getMessage(), (int) $e->getCode());
 }
 
 if (!isset($_SESSION['user_id'])) {
@@ -47,8 +47,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_custom_habit'])) {
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     'user_id' => $user_id,
-                    'name'    => $habit_name,
-                    'type'    => $habit_type
+                    'name' => $habit_name,
+                    'type' => $habit_type
                 ]);
                 $message = "Custom habit '" . htmlspecialchars($habit_name) . "' added successfully!";
             }
@@ -74,15 +74,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['log_habit'])) {
                 $sql_log = "INSERT INTO habit_logs (user_id, habit_id, points_change) VALUES (:user_id, :habit_id, :points_change)";
                 $stmt_log = $pdo->prepare($sql_log);
                 $stmt_log->execute([
-                    'user_id'       => $user_id,
-                    'habit_id'      => $habit_id_to_log,
+                    'user_id' => $user_id,
+                    'habit_id' => $habit_id_to_log,
                     'points_change' => $points_change
                 ]);
 
                 $sql_update_balance = "UPDATE users SET balance = balance + :points WHERE id = :user_id";
                 $stmt_update = $pdo->prepare($sql_update_balance);
                 $stmt_update->execute([
-                    'points'  => $points_change,
+                    'points' => $points_change,
                     'user_id' => $user_id
                 ]);
 
@@ -115,22 +115,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['remove_habit'])) {
             $stmt_get_name->execute(['habit_id' => $habit_id_to_remove, 'user_id' => $user_id]);
             $habit_name_to_remove = $stmt_get_name->fetchColumn();
 
-             if ($habit_name_to_remove !== false) {
+            if ($habit_name_to_remove !== false) {
                 $sql = "DELETE FROM habits WHERE id = :habit_id AND user_id = :user_id";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     'habit_id' => $habit_id_to_remove,
-                    'user_id'  => $user_id
+                    'user_id' => $user_id
                 ]);
 
                 if ($stmt->rowCount() > 0) {
                     $message = "Habit '" . htmlspecialchars($habit_name_to_remove) . "' removed successfully.";
                 } else {
-                     $error_message = "Habit not found or already removed.";
+                    $error_message = "Habit not found or already removed.";
                 }
-             } else {
-                 $error_message = "Habit not found or doesn't belong to you.";
-             }
+            } else {
+                $error_message = "Habit not found or doesn't belong to you.";
+            }
 
         } catch (PDOException $e) {
             $error_message = "Error removing habit: " . $e->getMessage();
@@ -167,36 +167,131 @@ $recent_logs = $stmt_logs->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Habit Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <style>
-        body {
-            font-family: sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-            background-color: #f4f4f4;
-            color: #333;
+        :root {
+            --background-color: #c9d6ff;
+            --container-bg: #ffffff;
+            --header-bg: aliceblue;
+            --timer-color: #333;
+            --button-bg: #5cb85c;
+            --button-hover-bg: #4cae4c;
+            --button-pause-bg: #f0ad4e;
+            --button-pause-hover-bg: #ec971f;
+            --button-reset-bg: #d9534f;
+            --button-reset-hover-bg: #d43f3a;
+            --text-color: #555;
+            --border-color: #ddd;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --header-height: 80px;
         }
+
+        button,
+        .btn {
+            background-color: #512da8;
+            color: #fff;
+            font-size: 12px;
+            padding: 10px 45px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            color: var(--text-color);
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 55px;
+            /* Height of footer + padding */
+            box-sizing: border-box;
+            overflow-x: hidden;
+            /* Prevent horizontal scrolling */
+        }
+
+        header {
+            background-color: var(--header-bg);
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: var(--header-height);
+            box-shadow: 0 2px 4px var(--shadow-color);
+            border-bottom: 1px solid var(--border-color);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        header img {
+            height: 60px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .habit-tracker-btn-container {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .user {
+            display: flex;
+            align-items: baseline;
+        }
+
+        .user h4 {
+            color: black;
+            margin: 25px;
+            font-style: italic;
+        }
+
+        header .user button,
+        header .user a.btn {
+            text-decoration: none;
+            color: white;
+            background-color: #512da8;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        header .user button a {
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
+
+        header .user button:hover,
+        header .user a.btn:hover {
+            background-color: #522da8d8;
+        }
+
+        
+
         .container {
             max-width: 800px;
             margin: auto;
+            margin-top: 10px;
             background: #fff;
             padding: 25px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background-color: var(--header-bg);
+
         }
-        h1, h2, h3 {
-            color: #333;
-            margin-top: 0;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        h1 { border-bottom: 2px solid #007bff; }
-        h2 { border-bottom: 1px solid #eee; }
-        h3 { font-size: 1.2em; margin-bottom: 15px; color: #555; }
 
         .balance {
             font-size: 1.6em;
@@ -208,23 +303,31 @@ $recent_logs = $stmt_logs->fetchAll();
             background-color: #e7f3ff;
             border-radius: 5px;
         }
+
         .balance span {
             color: #e69900;
             font-size: 1.1em;
             margin-left: 5px;
         }
 
-        .message, .error-message {
+        .message,
+        .error-message {
             padding: 12px 18px;
             margin-bottom: 20px;
             border-radius: 5px;
             border: 1px solid transparent;
         }
+
         .message {
-            background-color: #d4edda; color: #155724; border-color: #c3e6cb;
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
         }
+
         .error-message {
-            background-color: #f8d7da; color: #721c24; border-color: #f5c6cb;
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
         }
 
         section {
@@ -232,15 +335,20 @@ $recent_logs = $stmt_logs->fetchAll();
             padding-bottom: 20px;
             border-bottom: 1px dashed #ccc;
         }
+
         section:last-child {
             border-bottom: none;
             margin-bottom: 0;
         }
 
         form {
-            margin: 0; padding: 0; display: inline;
+            margin: 0;
+            padding: 0;
+            display: inline;
         }
-        button, .button-link {
+
+        button,
+        .button-link {
             padding: 8px 12px;
             border: none;
             border-radius: 4px;
@@ -251,34 +359,54 @@ $recent_logs = $stmt_logs->fetchAll();
             vertical-align: middle;
             margin-left: 5px;
         }
-        button[type="submit"], .button-link {
-             color: white;
+
+        button[type="submit"],
+        .button-link {
+            color: white;
         }
-        .log-good { background-color: #28a745; }
-        .log-good:hover { background-color: #218838; }
-        .log-bad { background-color: #dc3545; }
-        .log-bad:hover { background-color: #c82333; }
 
-         .remove-button {
-             background-color: #6c757d;
-             color: white;
-             padding: 4px 8px;
-             font-size: 0.8em;
-             font-weight: bold;
-         }
-         .remove-button:hover { background-color: #5a6268; }
+        .log-good {
+            background-color: #28a745;
+        }
 
-         #toggle-custom-form {
-             background-color: #ffc107;
-             color: #333;
-             font-weight: bold;
-             font-size: 1.2em;
-             padding: 5px 10px;
-             margin-bottom: 20px;
-             display: inline-block;
-             float: right;
-         }
-          #toggle-custom-form:hover { background-color: #e0a800; }
+        .log-good:hover {
+            background-color: #218838;
+        }
+
+        .log-bad {
+            background-color: #dc3545;
+        }
+
+        .log-bad:hover {
+            background-color: #c82333;
+        }
+
+        .remove-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 4px 8px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .remove-button:hover {
+            background-color: #5a6268;
+        }
+
+        #toggle-custom-form {
+            background-color: #ffc107;
+            color: #333;
+            font-weight: bold;
+            font-size: 1.2em;
+            padding: 5px 10px;
+            margin-bottom: 20px;
+            display: inline-block;
+            float: right;
+        }
+
+        #toggle-custom-form:hover {
+            background-color: #e0a800;
+        }
 
         #custom-habit-form {
             margin-top: 20px;
@@ -288,12 +416,15 @@ $recent_logs = $stmt_logs->fetchAll();
             border-radius: 5px;
             clear: both;
         }
-         #custom-habit-form label {
+
+        #custom-habit-form label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
-        #custom-habit-form input[type="text"], #custom-habit-form select {
+
+        #custom-habit-form input[type="text"],
+        #custom-habit-form select {
             width: calc(100% - 24px);
             padding: 10px;
             margin-bottom: 15px;
@@ -301,18 +432,21 @@ $recent_logs = $stmt_logs->fetchAll();
             border-radius: 4px;
             box-sizing: border-box;
         }
+
         #custom-habit-form button[type="submit"] {
             background-color: #007bff;
             font-size: 1em;
         }
+
         #custom-habit-form button[type="submit"]:hover {
-             background-color: #0056b3;
-         }
+            background-color: #0056b3;
+        }
 
         .habit-list {
             list-style: none;
             padding: 0;
         }
+
         .habit-list li {
             display: flex;
             justify-content: space-between;
@@ -322,24 +456,33 @@ $recent_logs = $stmt_logs->fetchAll();
             margin-bottom: 10px;
             border-radius: 5px;
             background-color: #fff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             transition: box-shadow 0.2s ease-in-out;
         }
+
         .habit-list li:hover {
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+
         .habit-list li .habit-name {
             flex-grow: 1;
             margin-right: 15px;
             font-size: 1.1em;
         }
-         .habit-list li .habit-actions {
-             display: flex;
-             align-items: center;
-             white-space: nowrap;
-         }
-        .habit-list .good-habit { border-left: 5px solid #28a745; }
-        .habit-list .bad-habit { border-left: 5px solid #dc3545; }
+
+        .habit-list li .habit-actions {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .habit-list .good-habit {
+            border-left: 5px solid #28a745;
+        }
+
+        .habit-list .bad-habit {
+            border-left: 5px solid #dc3545;
+        }
 
         .log-history ul {
             list-style: none;
@@ -351,6 +494,7 @@ $recent_logs = $stmt_logs->fetchAll();
             background: #fdfdfd;
             border-radius: 5px;
         }
+
         .log-history li {
             margin-bottom: 8px;
             font-size: 0.9em;
@@ -358,16 +502,60 @@ $recent_logs = $stmt_logs->fetchAll();
             padding-bottom: 8px;
             border-bottom: 1px dotted #eee;
         }
-         .log-history li:last-child { border-bottom: none; }
-         .log-history .points-plus { color: #28a745; font-weight: bold;}
-         .log-history .points-minus { color: #dc3545; font-weight: bold;}
 
-         .hidden { display: none; }
-         .clearfix::after { content: ""; clear: both; display: table; }
+        .log-history li:last-child {
+            border-bottom: none;
+        }
 
+        .log-history .points-plus {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .log-history .points-minus {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            color: var(--text-color);
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 55px;
+            /* Height of footer + padding */
+            box-sizing: border-box;
+            overflow-x: hidden;
+            /* Prevent horizontal scrolling */
+        }
     </style>
 </head>
+
 <body>
+    <header>
+        <img src="./img/Gulogo.png" alt="Logo">
+        <h2 style="padding: 20px;">FocusBrief</h2>
+        <div class="habit-tracker-btn-container">
+        </div>
+
+        <div class="user">
+            <h4><?php echo $username; ?></h4>
+            <button><a href="./pomodoro.php">Pomodoro</a></button>
+            <button><a href="dashboard.php">Dashboard</a></button>
+            <a class="btn" href="logout.php">Logout</a>
+        </div>
+    </header>
     <div class="container">
         <h1>Habit Tracker</h1>
         <p>Welcome, <?php echo htmlspecialchars($username); ?>!</p>
@@ -399,9 +587,11 @@ $recent_logs = $stmt_logs->fetchAll();
                                     <input type="hidden" name="habit_id" value="<?php echo $habit['id']; ?>">
                                     <button type="submit" name="log_habit" class="log-good">+1 Gold</button>
                                 </form>
-                                <form action="habits.php" method="POST" onsubmit="return confirm('Are you sure you want to remove this habit?');">
+                                <form action="habits.php" method="POST"
+                                    onsubmit="return confirm('Are you sure you want to remove this habit?');">
                                     <input type="hidden" name="habit_id" value="<?php echo $habit['id']; ?>">
-                                    <button type="submit" name="remove_habit" class="remove-button" title="Remove Habit">X</button>
+                                    <button type="submit" name="remove_habit" class="remove-button"
+                                        title="Remove Habit">X</button>
                                 </form>
                             </div>
                         </li>
@@ -410,37 +600,40 @@ $recent_logs = $stmt_logs->fetchAll();
             <?php endif; ?>
 
             <h3 style="margin-top: 25px;">Bad Habits</h3>
-             <?php if (empty($user_bad_habits)): ?>
+            <?php if (empty($user_bad_habits)): ?>
                 <p>No bad habits added yet. Use the '+' button below to add some!</p>
             <?php else: ?>
                 <ul class="habit-list">
                     <?php foreach ($user_bad_habits as $habit): ?>
                         <li class="bad-habit">
-                             <span class="habit-name"><?php echo htmlspecialchars($habit['name']); ?></span>
-                             <div class="habit-actions">
+                            <span class="habit-name"><?php echo htmlspecialchars($habit['name']); ?></span>
+                            <div class="habit-actions">
                                 <form action="habits.php" method="POST">
                                     <input type="hidden" name="habit_id" value="<?php echo $habit['id']; ?>">
                                     <button type="submit" name="log_habit" class="log-bad">-1 Gold</button>
                                 </form>
-                                <form action="habits.php" method="POST" onsubmit="return confirm('Are you sure you want to remove this habit?');">
+                                <form action="habits.php" method="POST"
+                                    onsubmit="return confirm('Are you sure you want to remove this habit?');">
                                     <input type="hidden" name="habit_id" value="<?php echo $habit['id']; ?>">
-                                    <button type="submit" name="remove_habit" class="remove-button" title="Remove Habit">X</button>
+                                    <button type="submit" name="remove_habit" class="remove-button"
+                                        title="Remove Habit">X</button>
                                 </form>
-                             </div>
+                            </div>
                         </li>
                     <?php endforeach; ?>
                 </ul>
-             <?php endif; ?>
+            <?php endif; ?>
         </section>
 
-         <section class="clearfix">
+        <section class="clearfix">
             <button id="toggle-custom-form" title="Add Custom Habit">+</button>
             <h2>Add Custom Habit</h2>
 
             <div id="custom-habit-form" class="hidden">
                 <form action="habits.php" method="POST" style="display: block;">
                     <label for="habit_name">Habit Name:</label>
-                    <input type="text" id="habit_name" name="habit_name" required placeholder="e.g., Meditate for 10 minutes">
+                    <input type="text" id="habit_name" name="habit_name" required
+                        placeholder="e.g., Meditate for 10 minutes">
 
                     <label for="habit_type">Habit Type:</label>
                     <select id="habit_type" name="habit_type" required>
@@ -456,7 +649,7 @@ $recent_logs = $stmt_logs->fetchAll();
 
         <section class="log-history">
             <h2>Recent Activity</h2>
-             <?php if (empty($recent_logs)): ?>
+            <?php if (empty($recent_logs)): ?>
                 <p>No recent habit activity.</p>
             <?php else: ?>
                 <ul>
@@ -483,27 +676,28 @@ $recent_logs = $stmt_logs->fetchAll();
             toggleButton.addEventListener('click', () => {
                 customForm.classList.toggle('hidden');
                 if (customForm.classList.contains('hidden')) {
-                     toggleButton.textContent = '+';
-                     toggleButton.title = 'Add Custom Habit';
+                    toggleButton.textContent = '+';
+                    toggleButton.title = 'Add Custom Habit';
                 } else {
                     toggleButton.textContent = '-';
-                     toggleButton.title = 'Hide Custom Habit Form';
+                    toggleButton.title = 'Hide Custom Habit Form';
                 }
             });
         }
 
         <?php if ($confetti_trigger): ?>
-        // Trigger confetti!
-        confetti({
-            particleCount: 620,
-            spread: 120,
-            origin: { y: 0.6 },
-            angle: 90,
-            startVelocity: 70,
-            colors: ['#28a745', '#ffc107', '#007bff', '#ffffff'] // Green, yellow, blue, white
-        });
+            // Trigger confetti!
+            confetti({
+                particleCount: 620,
+                spread: 120,
+                origin: { y: 0.6 },
+                angle: 90,
+                startVelocity: 70,
+                colors: ['#28a745', '#ffc107', '#007bff', '#ffffff'] // Green, yellow, blue, white
+            });
         <?php endif; ?>
     </script>
 
 </body>
+
 </html>

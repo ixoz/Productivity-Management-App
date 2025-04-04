@@ -155,6 +155,7 @@ require_once 'includes/addTask_func.inc.php';
             ?>
         <div class="user">
             <h4><?php echo $username; ?></h4>
+            <button><a href="./Habits.php">Habit Tracker</a></button>
             <button><a href="./pomodoro.php">Pomodoro</a></button>
             <a class="btn" href="logout.php">Logout</a>
         </div>

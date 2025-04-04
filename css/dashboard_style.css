@@ -88,11 +88,11 @@ header .user a.btn:hover {
 }
 
 .container {
-    background-color: #fff;
+    background-color: var(--header-bg);
     border-radius: 20px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
     overflow: hidden;
-    padding: 30px 40px;
+    
     top: 10rem;
     margin-bottom: 10px;
 }
