@@ -53,7 +53,7 @@ require_once 'includes/addTask_func.inc.php';
             /* Prevent horizontal scrolling */
         }
 
-        button {
+        button , .btn {
             background-color: #512da8;
             color: #fff;
             font-size: 12px;
@@ -131,35 +131,35 @@ require_once 'includes/addTask_func.inc.php';
             background-color: #522da8d8;
         }
 
-        h1 {
-            color: #512da8;
-            align-self: center;
-            margin-bottom: 20px;
-        }
+       
     </style>
 </head>
 
 <body>
-    <header>
-        <img src="./img/Gulogo.png" alt="">
+<header>
+        <img src="./img/Gulogo.png" alt="Logo">
         <h2 style="padding: 20px;">FocusBrief</h2>
-        <div class="user">
-            <?php
+        <div class="habit-tracker-btn-container">
+        </div>
+        <?php
             session_start();
             if (isset($_SESSION['user_username'])) {
-                echo "<h4>" . $_SESSION['user_username'] . "</h4>";
+                $username =  $_SESSION['user_username'];
                 ?>
-                <a href="" class="btn" style="margin-right: 5px;"
-                    onclick="window.open('/PMA/pomodoro.php', '_blank'); return false;">Pomodoro</a>
-                <a class="btn" href="logout.php">Logout</a>
+               
                 <?php
             } else {
                 header('Location: index.php');
                 die();
             }
             ?>
+        <div class="user">
+            <h4><?php echo $username; ?></h4>
+            <button><a href="./pomodoro.php">Pomodoro</a></button>
+            <a class="btn" href="logout.php">Logout</a>
         </div>
     </header>
+  
 
     <div class="global-container">
         <div class="add-forms-section">

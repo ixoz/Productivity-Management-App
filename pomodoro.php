@@ -118,7 +118,18 @@ if ($is_ajax_request && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['a
     --header-height: 80px;
 }
 
-
+button , .btn {
+            background-color: #512da8;
+            color: #fff;
+            font-size: 12px;
+            padding: 10px 45px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 10px;
+            cursor: pointer;
+        }
 body {
     font-family: 'Arial', sans-serif;
     background-color: var(--background-color);
