@@ -17,9 +17,9 @@ body {
     color: var(--text-color);
     min-height: 100vh;
     position: relative;
-    padding-bottom: 55px; /* Height of footer + padding */
+    padding-bottom: 55px; 
     box-sizing: border-box;
-    overflow-x: hidden; /* Prevent horizontal scrolling */
+    overflow-x: hidden;
 }
 
 header {
@@ -135,7 +135,6 @@ header .user a.btn:hover {
     display: none;
 }
 
-/* Style content */
 #add-task-content, #add-category-content {
     width: 580px;
     position: relative;

@@ -47,10 +47,9 @@ require_once 'includes/addTask_func.inc.php';
             min-height: 100vh;
             position: relative;
             padding-bottom: 55px;
-            /* Height of footer + padding */
             box-sizing: border-box;
             overflow-x: hidden;
-            /* Prevent horizontal scrolling */
+          
         }
 
         button , .btn {
@@ -190,6 +189,7 @@ require_once 'includes/addTask_func.inc.php';
                             id="description"></textarea>
                         <label for="category-list">Category: </label>
                         <select name="category" id="category-list">
+                            
                             <?php
                             echo "<option value=''>Select Category</option>";
                             show_categories($pdo);
@@ -205,7 +205,9 @@ require_once 'includes/addTask_func.inc.php';
                             <option value="completed">completed</option>
                         </select>
                         <button>Create</button>
+                        
                     </form>
+                    
                     <?php
                     check_addTask_errors();
                     ?>

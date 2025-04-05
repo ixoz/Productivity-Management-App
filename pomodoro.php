@@ -137,9 +137,9 @@ body {
     color: var(--text-color);
     min-height: 100vh;
     position: relative;
-    padding-bottom: 55px; /* Height of footer + padding */
+    padding-bottom: 55px;
     box-sizing: border-box;
-    overflow-x: hidden; /* Prevent horizontal scrolling */
+    overflow-x: hidden; 
 }
 
 header {

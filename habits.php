@@ -213,10 +213,9 @@ $recent_logs = $stmt_logs->fetchAll();
             min-height: 100vh;
             position: relative;
             padding-bottom: 55px;
-            /* Height of footer + padding */
             box-sizing: border-box;
             overflow-x: hidden;
-            /* Prevent horizontal scrolling */
+           
         }
 
         header {
@@ -534,10 +533,8 @@ $recent_logs = $stmt_logs->fetchAll();
             min-height: 100vh;
             position: relative;
             padding-bottom: 55px;
-            /* Height of footer + padding */
             box-sizing: border-box;
             overflow-x: hidden;
-            /* Prevent horizontal scrolling */
         }
     </style>
 </head>
@@ -686,14 +683,13 @@ $recent_logs = $stmt_logs->fetchAll();
         }
 
         <?php if ($confetti_trigger): ?>
-            // Trigger confetti!
             confetti({
                 particleCount: 620,
                 spread: 120,
                 origin: { y: 0.6 },
                 angle: 90,
                 startVelocity: 70,
-                colors: ['#28a745', '#ffc107', '#007bff', '#ffffff'] // Green, yellow, blue, white
+                colors: ['#28a745', '#ffc107', '#007bff', '#ffffff']
             });
         <?php endif; ?>
     </script>
