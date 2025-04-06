@@ -14,7 +14,7 @@ A web application designed to help users manage productivity through task manage
 * **Pomodoro Timer:**
     * Integrated Pomodoro timer to help users focus.
     * Tracks completed Pomodoro sessions.
-* **Dashboard:** A central place for users to view their information (specific features may vary).
+* **Dashboard:** Create, Update, Delete Todo List, Set Date, Track Status
 
 ## Technologies Used
 
@@ -32,7 +32,7 @@ A web application designed to help users manage productivity through task manage
 2.  **Database Setup:**
     * Ensure you have a phpMyAdmin server running.
     * Create a database named `taskmanager`.
-    * Import the necessary database schema (You might need to add a `.sql` file to your repository).
+    * Import the necessary database schema
 
 ## Usage
 
