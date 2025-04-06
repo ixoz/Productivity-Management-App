@@ -26,7 +26,7 @@ A web application designed to help users manage productivity through task manage
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/ixoz/Productivity-Management-App.git](https://www.google.com/search?q=https://github.com/ixoz/Productivity-Management-App.git)
+    git clone https://github.com/ixoz/Productivity-Management-App.git
     cd Productivity-Management-App
     ```
 2.  **Database Setup:**
