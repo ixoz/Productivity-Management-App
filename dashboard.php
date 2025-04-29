@@ -49,10 +49,11 @@ require_once 'includes/addTask_func.inc.php';
             padding-bottom: 55px;
             box-sizing: border-box;
             overflow-x: hidden;
-          
+
         }
 
-        button , .btn {
+        button,
+        .btn {
             background-color: #512da8;
             color: #fff;
             font-size: 12px;
@@ -129,37 +130,47 @@ require_once 'includes/addTask_func.inc.php';
         header .user a.btn:hover {
             background-color: #522da8d8;
         }
-
-       
     </style>
 </head>
 
 <body>
-<header>
+    <header>
         <img src="./img/Gulogo.png" alt="Logo">
         <h2 style="padding: 20px;">FocusBrief</h2>
         <div class="habit-tracker-btn-container">
         </div>
         <?php
-            session_start();
-            if (isset($_SESSION['user_username'])) {
-                $username =  $_SESSION['user_username'];
-                ?>
-               
-                <?php
-            } else {
-                header('Location: index.php');
-                die();
-            }
-            ?>
+        session_start();
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: index.php');
+            exit();
+        }
+
+        require_once 'includes/dbHandler.inc.php';
+
+        $user_id = $_SESSION['user_id'];
+        $username = $_SESSION['user_username'];
+
+        // Fetch user balance
+        $stmt = $pdo->prepare("SELECT balance FROM users WHERE id = :user_id");
+        $stmt->execute(['user_id' => $user_id]);
+        $user = $stmt->fetch();
+        $balance = $user['balance'] ?? 0;
+        ?>
+
+
         <div class="user">
-            <h4><?php echo $username; ?></h4>
+            <div>
+            <img src="img/coin.png" alt="coin" style="height: 30px; width: 30px;">
+            <span style="font-size: 18px; font-weight: bold; color: #e69900;"><?php echo htmlspecialchars($balance); ?></span>
+            </div>
+            <h4><?php echo htmlspecialchars($username); ?></h4>
             <button><a href="./Habits.php">Habit Tracker</a></button>
             <button><a href="./pomodoro.php">Pomodoro</a></button>
             <a class="btn" href="logout.php">Logout</a>
         </div>
     </header>
-  
+
 
     <div class="global-container">
         <div class="add-forms-section">
@@ -189,7 +200,7 @@ require_once 'includes/addTask_func.inc.php';
                             id="description"></textarea>
                         <label for="category-list">Category: </label>
                         <select name="category" id="category-list">
-                            
+
                             <?php
                             echo "<option value=''>Select Category</option>";
                             show_categories($pdo);
@@ -205,9 +216,9 @@ require_once 'includes/addTask_func.inc.php';
                             <option value="completed">completed</option>
                         </select>
                         <button>Create</button>
-                        
+
                     </form>
-                    
+
                     <?php
                     check_addTask_errors();
                     ?>
