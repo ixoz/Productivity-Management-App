@@ -170,6 +170,7 @@ $recent_logs = $stmt_logs->fetchAll();
 
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="img/ficon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Habit Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
