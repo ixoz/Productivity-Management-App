@@ -330,7 +330,7 @@ footer strong {
 
         <div class="user">
             <h4><?php echo $username; ?></h4>
-            <button><a href="./Habits.php">Habit Tracker</a></button>
+            <button><a href="./habits.php">Habit Tracker</a></button>
             <button><a href="dashboard.php">Dashboard</a></button>
             <a class="btn" href="logout.php">Logout</a>
         </div>
