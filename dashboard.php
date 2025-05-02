@@ -166,7 +166,7 @@ require_once 'includes/addTask_func.inc.php';
             <span style="font-size: 18px; font-weight: bold; color: #e69900;"><?php echo htmlspecialchars($balance); ?></span>
             </div>
             <h4><?php echo htmlspecialchars($username); ?></h4>
-            <button><a href="./Habits.php">Habit Tracker</a></button>
+            <button><a href="./habits.php">Habit Tracker</a></button>
             <button><a href="./pomodoro.php">Pomodoro</a></button>
             <a class="btn" href="logout.php">Logout</a>
         </div>
